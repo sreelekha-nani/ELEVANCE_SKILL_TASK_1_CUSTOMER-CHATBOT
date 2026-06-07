@@ -31,7 +31,24 @@
     </div>
 
     {% if current_user.is_authenticated %}
-    <div class="sidebar">
+    <!-- Mobile Header -->
+    <div class="mobile-header d-lg-none">
+        <div class="brand-small">
+            <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="32" height="32" rx="8" fill="#14B8A6"/>
+                <path d="M16 8V24M8 16H24" stroke="white" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+            <span>Sentix AI</span>
+        </div>
+        <button class="hamburger-btn" id="sidebarToggle">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+        </button>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="sidebar" id="sidebar">
         <div class="brand">
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect width="32" height="32" rx="8" fill="#14B8A6"/>
@@ -68,6 +85,16 @@
     <div class="main-content">
         {% block content %}{% endblock %}
     </div>
+    <script>
+        document.getElementById('sidebarToggle')?.addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('show');
+            document.getElementById('sidebarOverlay').classList.toggle('show');
+        });
+        document.getElementById('sidebarOverlay')?.addEventListener('click', () => {
+            document.getElementById('sidebar').classList.remove('show');
+            document.getElementById('sidebarOverlay').classList.remove('show');
+        });
+    </script>
     {% else %}
         {% block auth_content %}{% endblock %}
     {% endif %}

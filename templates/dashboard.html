@@ -14,38 +14,47 @@
     </div>
 
     <!-- KPI Widgets -->
-    <div class="row g-4 mb-4">
-        <div class="col-md-2">
+    <div class="row g-4 mb-4 kpi-row">
+        <div class="col-md">
+            <div class="glass-card text-center py-3">
+                <div class="d-flex align-items-center justify-content-center gap-2 mb-1">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="text-info"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    <div class="h3 fw-bold mb-0">{{ total_users }}</div>
+                </div>
+                <div class="small text-muted">Total Users</div>
+            </div>
+        </div>
+        <div class="col-md">
             <div class="glass-card text-center py-3">
                 <div class="h3 fw-bold mb-0">{{ total_tickets }}</div>
                 <div class="small text-muted">Total Tickets</div>
             </div>
         </div>
-        <div class="col-md-2">
+        <div class="col-md">
             <div class="glass-card text-center py-3">
                 <div class="h3 fw-bold mb-0 text-warning">{{ open_tickets }}</div>
                 <div class="small text-muted">Open Tickets</div>
             </div>
         </div>
-        <div class="col-md-2">
+        <div class="col-md">
             <div class="glass-card text-center py-3">
                 <div class="h3 fw-bold mb-0 text-success">{{ closed_tickets }}</div>
                 <div class="small text-muted">Closed Tickets</div>
             </div>
         </div>
-        <div class="col-md-2">
+        <div class="col-md">
             <div class="glass-card text-center py-3">
                 <div class="h3 fw-bold mb-0 text-danger">{{ high_priority }}</div>
                 <div class="small text-muted">Critical/High</div>
             </div>
         </div>
-        <div class="col-md-2">
+        <div class="col-md">
             <div class="glass-card text-center py-3">
                 <div class="h3 fw-bold mb-0 text-primary">{{ csat }}%</div>
                 <div class="small text-muted">CSAT Score</div>
             </div>
         </div>
-        <div class="col-md-2">
+        <div class="col-md">
             <div class="glass-card text-center py-3">
                 <div class="h3 fw-bold mb-0">{{ avg_res_time }}</div>
                 <div class="small text-muted">Avg Resolution</div>
@@ -82,16 +91,16 @@
             
             <!-- Filters -->
             <form class="d-flex flex-wrap gap-2 align-items-center" method="GET" action="{{ url_for('admin_dashboard') }}">
-                <input type="text" name="search" class="form-control form-control-sm" placeholder="Ticket ID..." value="{{ search }}" style="width: 120px;">
+                <input type="text" name="search" class="form-control form-control-sm flex-grow-1 flex-md-grow-0" placeholder="Ticket ID..." value="{{ search }}" style="min-width: 120px;">
                 
-                <select name="status" class="form-select form-select-sm" style="width: 110px;">
+                <select name="status" class="form-select form-select-sm w-auto">
                     <option value="">Status</option>
                     <option value="Open" {% if status_f == 'Open' %}selected{% endif %}>Open</option>
                     <option value="Resolved" {% if status_f == 'Resolved' %}selected{% endif %}>Resolved</option>
                     <option value="Closed" {% if status_f == 'Closed' %}selected{% endif %}>Closed</option>
                 </select>
 
-                <select name="priority" class="form-select form-select-sm" style="width: 110px;">
+                <select name="priority" class="form-select form-select-sm w-auto">
                     <option value="">Priority</option>
                     <option value="Critical" {% if priority_f == 'Critical' %}selected{% endif %}>Critical</option>
                     <option value="High" {% if priority_f == 'High' %}selected{% endif %}>High</option>
@@ -99,15 +108,17 @@
                     <option value="Low" {% if priority_f == 'Low' %}selected{% endif %}>Low</option>
                 </select>
 
-                <select name="sentiment" class="form-select form-select-sm" style="width: 110px;">
+                <select name="sentiment" class="form-select form-select-sm w-auto">
                     <option value="">Sentiment</option>
                     <option value="positive" {% if sentiment_f == 'positive' %}selected{% endif %}>Positive</option>
                     <option value="negative" {% if sentiment_f == 'negative' %}selected{% endif %}>Negative</option>
                     <option value="neutral" {% if sentiment_f == 'neutral' %}selected{% endif %}>Neutral</option>
                 </select>
 
-                <button type="submit" class="btn btn-teal btn-sm">Filter</button>
-                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary btn-sm">Reset</a>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-teal btn-sm">Filter</button>
+                    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary btn-sm">Reset</a>
+                </div>
             </form>
         </div>
 

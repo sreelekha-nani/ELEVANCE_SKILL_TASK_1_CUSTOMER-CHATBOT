@@ -4,14 +4,14 @@
 <div class="container-fluid">
     <!-- Header with Search/Filters -->
     <div class="glass-card mb-4 p-3">
-        <form id="search-form" class="row g-2 align-items-center">
-            <div class="col-md-4">
+        <form id="search-form" class="row g-3 align-items-center">
+            <div class="col-lg-4">
                 <div class="input-group">
                     <span class="input-group-text bg-transparent border-end-0"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></span>
-                    <input type="text" id="search-q" class="form-control border-start-0" placeholder="Search chat history...">
+                    <input type="text" id="search-q" class="form-control border-start-0" placeholder="Search history...">
                 </div>
             </div>
-            <div class="col-md-2">
+            <div class="col-6 col-sm-6 col-lg-2">
                 <select id="filter-sentiment" class="form-select">
                     <option value="">Sentiment</option>
                     <option value="positive">Positive</option>
@@ -19,7 +19,7 @@
                     <option value="neutral">Neutral</option>
                 </select>
             </div>
-            <div class="col-md-2">
+            <div class="col-6 col-sm-6 col-lg-2">
                 <select id="filter-emotion" class="form-select">
                     <option value="">Emotion</option>
                     <option value="happy">Happy</option>
@@ -29,10 +29,10 @@
                     <option value="confused">Confused</option>
                 </select>
             </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+            <div class="col-6 col-sm-6 col-lg-2">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
             </div>
-            <div class="col-md-2">
+            <div class="col-6 col-sm-6 col-lg-2">
                 <button type="button" id="reset-filters" class="btn btn-outline-secondary w-100">Reset</button>
             </div>
         </form>
