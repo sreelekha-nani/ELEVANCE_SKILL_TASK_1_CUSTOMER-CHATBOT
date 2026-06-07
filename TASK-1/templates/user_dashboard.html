@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="mb-4">
+        <h1 class="h3 fw-bold mb-0">Welcome, {{ current_user.username }}</h1>
+        <p class="text-muted small">Your personal support overview</p>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="glass-card text-center py-4">
+                <div class="h2 fw-bold mb-0 text-primary">{{ tickets|length }}</div>
+                <div class="small text-muted fw-bold">My Total Tickets</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card text-center py-4">
+                <div class="h2 fw-bold mb-0 text-warning">{{ tickets|selectattr('status', 'equalto', 'Open')|list|length }}</div>
+                <div class="small text-muted fw-bold">Active Requests</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card text-center py-4">
+                <div class="h2 fw-bold mb-0 text-success">{{ tickets|selectattr('status', 'equalto', 'Resolved')|list|length }}</div>
+                <div class="small text-muted fw-bold">Resolved Tickets</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Tickets -->
+    <div class="glass-card">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-bold mb-0">Recent Activity</h5>
+            <a href="{{ url_for('chat') }}" class="btn btn-teal btn-sm">New Request</a>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr class="text-muted small fw-bold">
+                        <th>TICKET ID</th>
+                        <th>STATUS</th>
+                        <th>PRIORITY</th>
+                        <th>CREATED ON</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ticket in tickets[:5] %}
+                    <tr>
+                        <td class="fw-bold small">{{ ticket.ticket_number }}</td>
+                        <td>
+                            <span class="badge {% if ticket.status == 'Open' %}bg-primary{% elif ticket.status == 'Resolved' %}bg-success{% else %}bg-secondary{% endif %}">
+                                {{ ticket.status }}
+                            </span>
+                        </td>
+                        <td>
+                             <span class="badge {% if ticket.priority in ['Critical', 'High'] %}bg-danger{% elif ticket.priority == 'Medium' %}bg-warning{% else %}bg-info{% endif %}">
+                                {{ ticket.priority }}
+                            </span>
+                        </td>
+                        <td class="small text-muted">{{ ticket.created_at.strftime('%b %d, %H:%M') }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% if not tickets %}
+                    <tr><td colspan="4" class="text-center py-4 text-muted small">No tickets found. Start a chat to create one!</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+        {% if tickets|length > 5 %}
+        <div class="text-center mt-3">
+            <a href="{{ url_for('my_tickets') }}" class="small text-teal text-decoration-none fw-bold">View All My Tickets →</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .btn-teal { background-color: #14B8A6; color: white; border: none; }
+    .btn-teal:hover { background-color: #0D9488; color: white; }
+    .text-teal { color: #14B8A6; }
+</style>
+{% endblock %}

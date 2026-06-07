@@ -1,0 +1,318 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Title -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 fw-bold mb-0">Admin Management Console</h1>
+            <p class="text-muted small">Real-time support ticket orchestration & AI analytics</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="/export/csv" class="btn btn-primary btn-sm">Export Data</a>
+        </div>
+    </div>
+
+    <!-- KPI Widgets -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-2">
+            <div class="glass-card text-center py-3">
+                <div class="h3 fw-bold mb-0">{{ total_tickets }}</div>
+                <div class="small text-muted">Total Tickets</div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="glass-card text-center py-3">
+                <div class="h3 fw-bold mb-0 text-warning">{{ open_tickets }}</div>
+                <div class="small text-muted">Open Tickets</div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="glass-card text-center py-3">
+                <div class="h3 fw-bold mb-0 text-success">{{ closed_tickets }}</div>
+                <div class="small text-muted">Closed Tickets</div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="glass-card text-center py-3">
+                <div class="h3 fw-bold mb-0 text-danger">{{ high_priority }}</div>
+                <div class="small text-muted">Critical/High</div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="glass-card text-center py-3">
+                <div class="h3 fw-bold mb-0 text-primary">{{ csat }}%</div>
+                <div class="small text-muted">CSAT Score</div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="glass-card text-center py-3">
+                <div class="h3 fw-bold mb-0">{{ avg_res_time }}</div>
+                <div class="small text-muted">Avg Resolution</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="glass-card">
+                <h6 class="fw-bold mb-3">Sentiment Distribution</h6>
+                <div style="height: 200px;"><canvas id="sentimentChart"></canvas></div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card">
+                <h6 class="fw-bold mb-3">Emotion Analysis</h6>
+                <div style="height: 200px;"><canvas id="emotionChart"></canvas></div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card">
+                <h6 class="fw-bold mb-3">Ticket Status</h6>
+                <div style="height: 200px;"><canvas id="statusChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Management Table Area -->
+    <div class="glass-card">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+            <h5 class="fw-bold mb-0">Ticket Management</h5>
+            
+            <!-- Filters -->
+            <form class="d-flex flex-wrap gap-2 align-items-center" method="GET" action="{{ url_for('admin_dashboard') }}">
+                <input type="text" name="search" class="form-control form-control-sm" placeholder="Ticket ID..." value="{{ search }}" style="width: 120px;">
+                
+                <select name="status" class="form-select form-select-sm" style="width: 110px;">
+                    <option value="">Status</option>
+                    <option value="Open" {% if status_f == 'Open' %}selected{% endif %}>Open</option>
+                    <option value="Resolved" {% if status_f == 'Resolved' %}selected{% endif %}>Resolved</option>
+                    <option value="Closed" {% if status_f == 'Closed' %}selected{% endif %}>Closed</option>
+                </select>
+
+                <select name="priority" class="form-select form-select-sm" style="width: 110px;">
+                    <option value="">Priority</option>
+                    <option value="Critical" {% if priority_f == 'Critical' %}selected{% endif %}>Critical</option>
+                    <option value="High" {% if priority_f == 'High' %}selected{% endif %}>High</option>
+                    <option value="Medium" {% if priority_f == 'Medium' %}selected{% endif %}>Medium</option>
+                    <option value="Low" {% if priority_f == 'Low' %}selected{% endif %}>Low</option>
+                </select>
+
+                <select name="sentiment" class="form-select form-select-sm" style="width: 110px;">
+                    <option value="">Sentiment</option>
+                    <option value="positive" {% if sentiment_f == 'positive' %}selected{% endif %}>Positive</option>
+                    <option value="negative" {% if sentiment_f == 'negative' %}selected{% endif %}>Negative</option>
+                    <option value="neutral" {% if sentiment_f == 'neutral' %}selected{% endif %}>Neutral</option>
+                </select>
+
+                <button type="submit" class="btn btn-teal btn-sm">Filter</button>
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary btn-sm">Reset</a>
+            </form>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr class="text-muted small fw-bold">
+                        <th>ID</th>
+                        <th>ISSUE DESCRIPTION</th>
+                        <th>SENTIMENT</th>
+                        <th>EMOTION</th>
+                        <th>PRIORITY</th>
+                        <th>STATUS</th>
+                        <th>ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ticket in recent_tickets %}
+                    <tr id="ticket-row-{{ ticket.id }}">
+                        <td class="fw-bold small">{{ ticket.ticket_number }}</td>
+                        <td class="small text-truncate" style="max-width: 200px;">{{ ticket.issue_description }}</td>
+                        <td><span class="sentiment-badge sentiment-{{ ticket.sentiment }}">{{ ticket.sentiment }}</span></td>
+                        <td class="small text-capitalize">{{ ticket.emotion }}</td>
+                        <td>
+                            <span class="badge {% if ticket.priority in ['Critical', 'High'] %}bg-danger{% elif ticket.priority == 'Medium' %}bg-warning{% else %}bg-info{% endif %}">
+                                {{ ticket.priority }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge status-badge-{{ ticket.status|lower }} {% if ticket.status == 'Open' %}bg-primary{% elif ticket.status == 'Resolved' %}bg-success{% else %}bg-secondary{% endif %}">
+                                {{ ticket.status }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-light btn-sm p-1" data-bs-toggle="dropdown">
+                                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/></svg>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end small">
+                                    <li><a class="dropdown-item" href="#" onclick="viewTicketDetails({{ ticket.id }})">View Details</a></li>
+                                    {% if ticket.status != 'Resolved' and ticket.status != 'Closed' %}
+                                    <li><a class="dropdown-item text-success" href="#" onclick="updateStatus({{ ticket.id }}, 'Resolved')">Mark Resolved</a></li>
+                                    {% endif %}
+                                    {% if ticket.status != 'Closed' %}
+                                    <li><a class="dropdown-item text-danger" href="#" onclick="updateStatus({{ ticket.id }}, 'Closed')">Close Ticket</a></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% if not recent_tickets %}
+                    <tr><td colspan="7" class="text-center py-4 text-muted">No records found matching criteria.</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <nav class="mt-4">
+            <ul class="pagination pagination-sm justify-content-center">
+                {% if pagination.has_prev %}
+                <li class="page-item"><a class="page-link" href="{{ url_for('admin_dashboard', page=pagination.prev_num, search=search, status=status_f, priority=priority_f, sentiment=sentiment_f) }}">Previous</a></li>
+                {% endif %}
+                
+                {% for p in pagination.iter_pages() %}
+                    {% if p %}
+                    <li class="page-item {% if p == pagination.page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('admin_dashboard', page=p, search=search, status=status_f, priority=priority_f, sentiment=sentiment_f) }}">{{ p }}</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if pagination.has_next %}
+                <li class="page-item"><a class="page-link" href="{{ url_for('admin_dashboard', page=pagination.next_num, search=search, status=status_f, priority=priority_f, sentiment=sentiment_f) }}">Next</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- Ticket Details Modal -->
+<div class="modal fade" id="ticketModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content glass-card p-0 overflow-hidden">
+            <div class="modal-header bg-teal text-white border-0 p-3">
+                <h5 class="modal-title fw-bold" id="modalTicketTitle">Ticket Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4" id="modalContent">
+                <!-- Loaded via JS -->
+                <div class="text-center py-5">
+                    <div class="spinner-border text-teal" role="status"></div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 p-3 bg-light">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Chart Loading
+    fetch('/api/analytics')
+        .then(res => res.json())
+        .then(data => {
+            const chartConfig = (labels, values, colors, type) => ({
+                type: type,
+                data: {
+                    labels: labels,
+                    datasets: [{ data: values, backgroundColor: colors, borderRadius: type === 'bar' ? 6 : 0 }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: type !== 'bar', position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } },
+                    scales: type === 'bar' ? { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } } : {}
+                }
+            });
+
+            new Chart(document.getElementById('sentimentChart'), chartConfig(data.sentiment.labels, data.sentiment.values, ['#22C55E', '#EF4444', '#F59E0B'], 'pie'));
+            new Chart(document.getElementById('emotionChart'), chartConfig(data.emotion.labels, data.emotion.values, ['#14B8A6', '#8B5CF6', '#F59E0B', '#EF4444', '#3B82F6', '#64748B'], 'doughnut'));
+            new Chart(document.getElementById('statusChart'), chartConfig(data.status.labels, data.status.values, '#0F766E', 'bar'));
+        });
+});
+
+function viewTicketDetails(id) {
+    const modal = new bootstrap.Modal(document.getElementById('ticketModal'));
+    const content = document.getElementById('modalContent');
+    const title = document.getElementById('modalTicketTitle');
+    
+    modal.show();
+    
+    fetch(`/api/ticket/${id}`)
+        .then(res => res.json())
+        .then(t => {
+            title.innerText = `Ticket: ${t.ticket_number}`;
+            content.innerHTML = `
+                <div class="row g-4">
+                    <div class="col-md-7">
+                        <label class="small text-muted fw-bold">Issue Description</label>
+                        <p class="border rounded p-3 bg-light mt-1">${t.description}</p>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="mb-3">
+                            <label class="small text-muted fw-bold d-block">Customer</label>
+                            <span class="fw-bold">${t.user}</span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="small text-muted fw-bold d-block">Created At</label>
+                            <span class="small">${t.created_at}</span>
+                        </div>
+                        <div class="d-flex gap-2 mb-3">
+                            <div>
+                                <label class="small text-muted fw-bold d-block">Sentiment</label>
+                                <span class="sentiment-badge sentiment-${t.sentiment}">${t.sentiment}</span>
+                            </div>
+                            <div>
+                                <label class="small text-muted fw-bold d-block">Emotion</label>
+                                <span class="small text-capitalize">${t.emotion}</span>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                             <div>
+                                <label class="small text-muted fw-bold d-block">Priority</label>
+                                <span class="badge ${t.priority === 'Critical' ? 'bg-danger' : 'bg-primary'}">${t.priority}</span>
+                            </div>
+                            <div>
+                                <label class="small text-muted fw-bold d-block">Status</label>
+                                <span class="badge bg-secondary">${t.status}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+}
+
+function updateStatus(id, newStatus) {
+    if(!confirm(`Confirm marking ticket as ${newStatus}?`)) return;
+    
+    fetch(`/update_ticket_status/${id}/${newStatus}`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            if(data.success) {
+                location.reload(); // Refresh to update metrics and table
+            } else {
+                alert("Update failed: " + data.error);
+            }
+        });
+}
+</script>
+
+<style>
+    .bg-teal { background-color: #14B8A6 !important; }
+    .btn-teal { background-color: #14B8A6; color: white; border: none; }
+    .btn-teal:hover { background-color: #0D9488; color: white; }
+    .status-badge-open { background-color: #3B82F6; }
+    .status-badge-resolved { background-color: #22C55E; }
+    .status-badge-closed { background-color: #64748B; }
+    .table th { border-top: none; }
+    .pagination .page-link { color: #0F766E; border-radius: 6px; margin: 0 2px; }
+    .pagination .page-item.active .page-link { background-color: #0F766E; border-color: #0F766E; }
+</style>
+{% endblock %}
