@@ -1,0 +1,13 @@
+Flask==3.0.0
+Flask-SQLAlchemy==3.1.1
+Flask-Login==0.6.3
+Werkzeug==3.0.1
+scikit-learn==1.3.2
+nltk==3.8.1
+textblob==0.17.1
+pandas==2.1.3
+numpy==1.26.2
+chartkick==0.5.0
+sqlalchemy==2.0.23
+python-dotenv==1.0.0
+Flask-Migrate==4.0.5
