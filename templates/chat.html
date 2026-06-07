@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header with Search/Filters -->
+    <div class="glass-card mb-4 p-3">
+        <form id="search-form" class="row g-2 align-items-center">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-end-0"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></span>
+                    <input type="text" id="search-q" class="form-control border-start-0" placeholder="Search chat history...">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <select id="filter-sentiment" class="form-select">
+                    <option value="">Sentiment</option>
+                    <option value="positive">Positive</option>
+                    <option value="negative">Negative</option>
+                    <option value="neutral">Neutral</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select id="filter-emotion" class="form-select">
+                    <option value="">Emotion</option>
+                    <option value="happy">Happy</option>
+                    <option value="angry">Angry</option>
+                    <option value="frustrated">Frustrated</option>
+                    <option value="excited">Excited</option>
+                    <option value="confused">Confused</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+            </div>
+            <div class="col-md-2">
+                <button type="button" id="reset-filters" class="btn btn-outline-secondary w-100">Reset</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Chat Interface -->
+    <div class="glass-card chat-container p-0 overflow-hidden">
+        <div class="chat-messages" id="chat-messages">
+            <!-- Messages injected here -->
+            <div id="typing-indicator" class="message bot d-none" style="background: transparent; box-shadow: none; align-self: flex-start;">
+                <div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+            </div>
+        </div>
+        
+        <form id="chat-form" class="chat-input-area">
+            <input type="hidden" id="conv-id" value="{{ conversation_id }}">
+            <div class="input-group">
+                <input type="text" id="chat-input" class="form-control" placeholder="Type your message here..." autocomplete="off" required>
+                <button type="submit" class="btn btn-primary px-4">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.sentiment-badge, .emotion-badge { 
+    font-size: 0.6rem; 
+    padding: 2px 8px; 
+    border-radius: 20px; 
+    font-weight: 700; 
+    text-transform: uppercase; 
+}
+.emotion-badge { 
+    background: #64748B; 
+    color: white; 
+}
+.sentiment-positive { background-color: var(--success); color: white; }
+.sentiment-negative { background-color: var(--error); color: white; }
+.sentiment-neutral { background-color: var(--warning); color: var(--text-color); }
+
+.message.user .metadata-area {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+.message.bot .metadata-area {
+    display: none;
+}
+</style>
+{% endblock %}

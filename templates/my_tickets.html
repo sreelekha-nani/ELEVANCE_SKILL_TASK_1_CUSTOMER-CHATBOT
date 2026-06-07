@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 fw-bold mb-0">My Support Tickets</h1>
+            <p class="text-muted small">Track the status of your AI-generated requests</p>
+        </div>
+    </div>
+
+    <div class="glass-card">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr class="text-muted small fw-bold">
+                        <th>TICKET ID</th>
+                        <th>ISSUE DESCRIPTION</th>
+                        <th>PRIORITY</th>
+                        <th>STATUS</th>
+                        <th>CREATED TIME</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ticket in tickets %}
+                    <tr>
+                        <td class="fw-bold small">{{ ticket.ticket_number }}</td>
+                        <td class="small text-truncate" style="max-width: 300px;">{{ ticket.issue_description }}</td>
+                        <td>
+                            <span class="badge {% if ticket.priority in ['Critical', 'High'] %}bg-danger{% elif ticket.priority == 'Medium' %}bg-warning{% else %}bg-info{% endif %}">
+                                {{ ticket.priority }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge {% if ticket.status == 'Open' %}bg-primary{% elif ticket.status == 'Resolved' %}bg-success{% else %}bg-secondary{% endif %}">
+                                {{ ticket.status }}
+                            </span>
+                        </td>
+                        <td class="text-muted small">{{ ticket.created_at.strftime('%b %d, %Y %H:%M') }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% if not tickets %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">
+                            <p class="mb-0">You haven't created any tickets yet.</p>
+                            <a href="{{ url_for('chat') }}" class="btn btn-teal btn-sm mt-3">Start a Chat</a>
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn-teal { background-color: #14B8A6; color: white; border: none; }
+    .btn-teal:hover { background-color: #0D9488; color: white; }
+</style>
+{% endblock %}

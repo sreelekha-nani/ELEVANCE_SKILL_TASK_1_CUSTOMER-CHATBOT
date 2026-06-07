@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="mb-4">
+        <h1 class="h3 fw-bold mb-0">Profile Settings</h1>
+        <p class="text-muted small">Manage your account information and preferences</p>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="glass-card">
+                <div class="d-flex align-items-center mb-4 gap-3">
+                    <div class="bg-teal text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 64px; height: 64px; font-size: 1.5rem; font-weight: bold;">
+                        {{ user.username[0].upper() }}
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-0">{{ user.username }}</h5>
+                        <span class="badge bg-light text-dark small">{{ (user.role or 'user').capitalize() }}</span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="small text-muted fw-bold d-block">Email Address</label>
+                    <div class="py-2 border-bottom">{{ user.email }}</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="small text-muted fw-bold d-block">Account Created</label>
+                    <div class="py-2 border-bottom">{{ user.created_at.strftime('%B %d, %Y') }}</div>
+                </div>
+
+                <div class="mt-4">
+                    <button class="btn btn-teal btn-sm" disabled>Edit Profile</button>
+                    <button class="btn btn-outline-danger btn-sm ms-2" disabled>Change Password</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-teal { background-color: #14B8A6 !important; }
+    .btn-teal { background-color: #14B8A6; color: white; border: none; }
+    .btn-teal:hover { background-color: #0D9488; color: white; }
+</style>
+{% endblock %}
